@@ -22,6 +22,8 @@ class QuestionController extends Controller
     public function index()
     {
         // go to the model and get a group of records then paginate
+        // $questions = Question::all();
+        // $questions = Question::paginate(5);
         $questions = Question::orderBy('id', 'desc')->paginate(3);
         // return the view, and pass in the group of records to loop through
         return view('questions.index')->with('questions', $questions);
@@ -92,7 +94,7 @@ class QuestionController extends Controller
         if ($question->user->id != Auth::id()) {
         return abort(403);
         }
-        return view('questions.edit');
+        return view('questions.edit')->with('question', $question);
     }
 
     /**
@@ -109,6 +111,24 @@ class QuestionController extends Controller
         return abort(403);
         }
         // update the question
+        // validate the form data
+        $request->validate([
+            'title' => 'required|max:255'
+        ]);
+
+        // process the data and submit it
+        $status = $question->update([
+            'title' => $request['title'],
+            'description' => $request['description']
+        ]);
+
+        // if successful we want to redirect
+        if ($status) {
+            return redirect()->route('questions.show', $question->id);
+        } else {
+            return redirect()->route('questions.edit', $question->id);
+
+        }
         
     }
 
@@ -120,8 +140,11 @@ class QuestionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $question = Question::findOrFail($id);
+        $question->delete();
+        return $this->index();
     }
+
 }
 
 

@@ -46,7 +46,7 @@ class AnswersController extends Controller
     {
         // validate the form data
         $request->validate([
-            'content' => "required|min:15",
+            'content' => "required|min:3",
             'question_id' => 'required|integer'
         ]);
 
@@ -83,7 +83,11 @@ class AnswersController extends Controller
      */
     public function edit($id)
     {
-        //
+        $answer = Answer::findOrFail($id);
+        if ($answer->user->id != Auth::id()) {
+        return abort(403);
+        }
+        return view('answers.edit')->with('answer', $answer);
     }
 
     /**
@@ -95,7 +99,11 @@ class AnswersController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $answer = Answer::findOrFail($id);
+        if ($answer->user->id != Auth::id()) {
+        return abort(403);
+        }
+        // update the question
     }
 
     /**
